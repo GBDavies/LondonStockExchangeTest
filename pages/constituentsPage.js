@@ -112,7 +112,15 @@ export class ConstituentsPage {
       const price = await row.locator("td").nth(4).innerText();
       const change = await row.locator("td").nth(5).innerText();
       const changePercent = await row.locator("td").nth(6).innerText();
-      data.push({ code, name, currency, marketCap, price, change, changePercent });
+      data.push({
+        code,
+        name,
+        currency,
+        marketCap,
+        price,
+        change,
+        changePercent,
+      });
     }
     return data;
   }
@@ -132,7 +140,10 @@ export class ConstituentsPage {
         ]);
       }
       // Wait for the first row to be visible as a more focused wait
-      await this.page.locator("tbody tr").first().waitFor({ state: "visible", timeout: 10000 });
+      await this.page
+        .locator("tbody tr")
+        .first()
+        .waitFor({ state: "visible", timeout: 10000 });
       const pageRows = await this.extractRowsFromCurrentPage();
       allRows = allRows.concat(pageRows);
     }
