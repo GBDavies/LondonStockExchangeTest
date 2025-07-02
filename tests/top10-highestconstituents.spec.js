@@ -70,4 +70,14 @@ test("Extract FTSE 100 top 10 constituents by highest percentage change", async 
       )
     )
   ).toBe(true);
+
+  // Confirm CSV file has the correct number of companies (excluding header)
+  const csvPath = path.join(
+    process.cwd(),
+    "test-results",
+    "ftse100_highest10constituents.csv"
+  );
+  const csvContent = fs.readFileSync(csvPath, "utf8");
+  const csvRows = csvContent.trim().split("\n");
+  expect(csvRows.length - 1).toBe(top10.length);
 });
