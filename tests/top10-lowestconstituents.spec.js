@@ -1,5 +1,3 @@
-"use strict";
-
 // Apologies for using javascript
 
 import { test, expect } from "@playwright/test";

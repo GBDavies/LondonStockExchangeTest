@@ -8,6 +8,9 @@ export class HomePage {
       name: /Accept All Cookies/i,
     });
     this.ftse100Link = page.getByRole("link", { name: "View FTSE 100" });
+    this.viewAllIndicesBtn = page.getByRole("link", {
+      name: "View all indices",
+    });
   }
 
   async goto() {
@@ -17,7 +20,7 @@ export class HomePage {
 
   async acceptCookiesIfVisible() {
     try {
-      if (await this.acceptCookiesButton.isVisible({ timeout: 5000 })) {
+      if (await this.acceptCookiesButton.isVisible({ timeout: 10000 })) {
         await this.acceptCookiesButton.click();
       }
     } catch (e) {
@@ -34,5 +37,14 @@ export class HomePage {
 
     // Make sure page has loaded
     return newPage;
+  }
+
+  async openIndicesPage() {
+    await this.viewAllIndicesBtn.waitFor({ state: "visible", timeout: 10000 });
+    const [indicesPage] = await Promise.all([
+      this.page.waitForEvent("popup", { timeout: 10000 }),
+      this.viewAllIndicesBtn.click(),
+    ]);
+    return indicesPage;
   }
 }
