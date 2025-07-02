@@ -29,9 +29,9 @@ test("Find the month with the lowest average FTSE 100 index value over the past 
   const homePage = new HomePage(page);
   await homePage.goto();
   await homePage.acceptCookiesIfVisible();
-  const indicesPage = new IndicesPage(await homePage.openIndicesPage());
 
-  await indicesPage.waitForIntradayTable();
+  const indicesPage = new IndicesPage(await homePage.openIndicesPage());
+  await indicesPage.waitForLoad();
   await page.close();
 
   await indicesPage.openFTSE100Index();
@@ -72,13 +72,19 @@ test("Find the month with the lowest average FTSE 100 index value over the past 
   exportToCSV(allData, "ftse100_monthly_averages.csv");
 
   // Read and parse the CSV file
-  const csvPath = path.join(process.cwd(), "test-results", "ftse100_monthly_averages.csv");
+  const csvPath = path.join(
+    process.cwd(),
+    "test-results",
+    "ftse100_monthly_averages.csv"
+  );
   const csvContent = fs.readFileSync(csvPath, "utf8");
   const csvRows = csvContent.trim().split("\n").slice(1); // skip header
 
   // Parse CSV rows into objects
   const csvData = csvRows.map(row => {
-    const [value, month, year] = row.split(",").map(cell => cell.replace(/"/g, ""));
+    const [value, month, year] = row
+      .split(",")
+      .map(cell => cell.replace(/"/g, ""));
     return {
       value: parseFloat(value),
       month,
@@ -87,7 +93,13 @@ test("Find the month with the lowest average FTSE 100 index value over the past 
   });
 
   // Find the row with the lowest value in the CSV
-  const csvLowest = csvData.reduce((min, curr) => (curr.value < min.value ? curr : min), csvData[0]);
+  const csvLowest = csvData.reduce(
+    (min, curr) => (curr.value < min.value ? curr : min),
+    csvData[0]
+  );
+
+  // There should be at least one data point
+  expect(allData.length).toBeGreaterThan(0);
 
   // Assert that the lowest from the test matches the lowest in the CSV
   expect(csvLowest.value).toBeCloseTo(lowest.value, 2);
@@ -98,4 +110,10 @@ test("Find the month with the lowest average FTSE 100 index value over the past 
     `Lowest FTSE 100 index value: ${lowest.value} in ${lowest.month} ${lowest.year}`
   );
   expect(lowest.month).not.toBeNull();
+
+  // Data Integrity - All dates should be in the last 3 years
+  const minYear = Math.min(...allData.map(d => parseInt(d.year, 10)));
+  const maxYear = Math.max(...allData.map(d => parseInt(d.year, 10)));
+  expect(minYear).toBeGreaterThanOrEqual(threeYearsAgo);
+  expect(maxYear).toBeLessThanOrEqual(now.getFullYear());
 });

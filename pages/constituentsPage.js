@@ -2,6 +2,7 @@ export class ConstituentsPage {
   /**
    * @param {import('@playwright/test').Page} page
    */
+
   constructor(page) {
     this.page = page;
     this.table = page.locator("table");
@@ -21,7 +22,7 @@ export class ConstituentsPage {
   }
 
   async waitForLoad() {
-    await this.page.waitForLoadState("domcontentloaded");
+    await this.page.waitForLoadState("domcontentloaded", { timeout: 15000 });
     await this.table.waitFor({ state: "visible", timeout: 15000 });
   }
 

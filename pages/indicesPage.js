@@ -5,6 +5,9 @@ export class IndicesPage {
   constructor(page) {
     this.page = page;
     this.intradayTable = page.locator("#indices-table-IntradayValues");
+    this.intradayTableRow = page.locator(
+      "#indices-table-IntradayValues tbody tr"
+    );
     this.ftse100Link = page.locator('a.dash-link[href="indices/ftse-100"]');
     this.chartContainer = page.locator(".highcharts-container");
     this.yearInput = page.locator(
@@ -17,8 +20,13 @@ export class IndicesPage {
     this.pointsLocator = page.locator(".highcharts-point[aria-label]");
   }
 
-  async waitForIntradayTable() {
+  //With more time, I would create a reusable retry logic instead of having long timeouts
+  async waitForLoad() {
+    await this.page.waitForLoadState("domcontentloaded", { timeout: 15000 });
     await this.intradayTable.waitFor({ state: "visible", timeout: 15000 });
+    await this.intradayTableRow
+      .first()
+      .waitFor({ state: "visible", timeout: 10000 });
   }
 
   async openFTSE100Index() {
@@ -60,5 +68,5 @@ export class IndicesPage {
     return await this.pointsLocator.all();
   }
 
-  //Alternative: Call Get https://refinitiv-widgets.financial.com/rest/api/timeseries/historical?ric=.FTSE
+  //Alternative option: Call Get https://refinitiv-widgets.financial.com/rest/api/timeseries/historical?ric=.FTSE API and calculate lowest average
 }
